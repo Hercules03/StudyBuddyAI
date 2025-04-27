@@ -6,7 +6,7 @@ import type { GenerateQuestionCardsOutput } from '@/ai/flows/generate-question-c
 import { MaterialUploader } from '@/components/material-uploader';
 import { QuestionCard } from '@/components/question-card';
 import { Button } from '@/components/ui/button';
-import { BrainCircuit } from 'lucide-react'; // Import icon for reset button
+import { BrainCircuit, BookOpenText } from 'lucide-react'; // Import icon for reset button
 
 type Question = GenerateQuestionCardsOutput['questionCards'][number];
 
@@ -27,8 +27,7 @@ export default function Home() {
       setCurrentCardIndex(currentCardIndex + 1);
     } else {
       // Last card was shown, go back to uploader
-      setShowUploader(true);
-      setQuestionCards([]); // Clear cards
+      handleReset(); // Go back to uploader and reset state
     }
   };
 
@@ -41,8 +40,8 @@ export default function Home() {
 
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 md:p-8 bg-secondary">
-      <div className="container mx-auto flex flex-col items-center gap-8 w-full">
+    <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-8 md:p-12 bg-secondary/30"> {/* Use secondary background */}
+      <div className="container mx-auto flex flex-col items-center gap-8 w-full max-w-4xl px-0"> {/* Remove horizontal padding */}
         {showUploader ? (
           <MaterialUploader
             onQuestionsGenerated={handleQuestionsGenerated}
@@ -51,7 +50,7 @@ export default function Home() {
           />
         ) : (
           questionCards.length > 0 && (
-            <>
+            <div className="flex flex-col items-center w-full gap-6"> {/* Wrapper div for card and button */}
              <QuestionCard
                 key={currentCardIndex} // Add key for proper re-rendering on index change
                 question={questionCards[currentCardIndex].question}
@@ -59,10 +58,11 @@ export default function Home() {
                 onNext={handleNextCard}
                 isLastCard={currentCardIndex === questionCards.length - 1}
              />
-              <Button onClick={handleReset} variant="outline" className="mt-4 border-primary text-primary hover:bg-primary/10">
-                <BrainCircuit className="mr-2 h-4 w-4" /> Start New Session
+             {/* Show reset button only when cards are displayed */}
+              <Button onClick={handleReset} variant="outline" className="border-primary text-primary hover:bg-primary/10 shadow rounded-lg font-medium">
+                <BookOpenText className="mr-2 h-4 w-4" /> Upload New Material
               </Button>
-            </>
+            </div>
           )
         )}
       </div>
