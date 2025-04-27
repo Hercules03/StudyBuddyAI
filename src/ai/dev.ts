@@ -1,1 +1,2 @@
-// Flows will be imported for their side effects in this file.
+import '@/ai/flows/generate-question-cards.ts';
+import '@/ai/flows/process-study-material.ts';
