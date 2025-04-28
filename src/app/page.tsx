@@ -6,7 +6,7 @@ import type { GenerateQuestionCardsOutput } from '@/ai/flows/generate-question-c
 import { MaterialUploader } from '@/components/material-uploader';
 import { QuestionCard } from '@/components/question-card';
 import { Button } from '@/components/ui/button';
-import { BrainCircuit, BookOpenText } from 'lucide-react'; // Import icon for reset button
+import { BrainCircuit, BookOpenText } from 'lucide-react';
 
 type Question = GenerateQuestionCardsOutput['questionCards'][number];
 
@@ -19,15 +19,14 @@ export default function Home() {
   const handleQuestionsGenerated = (cards: Question[]) => {
     setQuestionCards(cards);
     setCurrentCardIndex(0);
-    setShowUploader(false); // Hide uploader and show cards
+    setShowUploader(false);
   };
 
   const handleNextCard = () => {
     if (currentCardIndex < questionCards.length - 1) {
       setCurrentCardIndex(currentCardIndex + 1);
     } else {
-      // Last card was shown, go back to uploader
-      handleReset(); // Go back to uploader and reset state
+      handleReset();
     }
   };
 
@@ -40,8 +39,8 @@ export default function Home() {
 
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-8 md:p-12 bg-secondary/30"> {/* Use secondary background */}
-      <div className="container mx-auto flex flex-col items-center gap-8 w-full max-w-4xl px-0"> {/* Remove horizontal padding */}
+    <main className="flex min-h-[calc(100vh-57px)] flex-col items-center justify-center p-4 sm:p-8 md:p-12 bg-secondary/30"> {/* Adjusted min-height */}
+      <div className="container mx-auto flex flex-col items-center gap-8 w-full max-w-4xl px-0">
         {showUploader ? (
           <MaterialUploader
             onQuestionsGenerated={handleQuestionsGenerated}
@@ -50,15 +49,16 @@ export default function Home() {
           />
         ) : (
           questionCards.length > 0 && (
-            <div className="flex flex-col items-center w-full gap-6"> {/* Wrapper div for card and button */}
+            <div className="flex flex-col items-center w-full gap-6">
              <QuestionCard
-                key={currentCardIndex} // Add key for proper re-rendering on index change
+                key={currentCardIndex}
                 question={questionCards[currentCardIndex].question}
                 answer={questionCards[currentCardIndex].answer}
                 onNext={handleNextCard}
                 isLastCard={currentCardIndex === questionCards.length - 1}
+                showSaveButton={true} // Explicitly show save button here
+                showDeleteButton={false} // Explicitly hide delete button here
              />
-             {/* Show reset button only when cards are displayed */}
               <Button onClick={handleReset} variant="outline" className="border-primary text-primary hover:bg-primary/10 shadow rounded-lg font-medium">
                 <BookOpenText className="mr-2 h-4 w-4" /> Upload New Material
               </Button>
