@@ -29,18 +29,21 @@ export function QuestionCard({ question, answer, onNext, isLastCard }: QuestionC
   };
 
   return (
-    <div className="perspective w-full max-w-xl mx-auto min-h-[350px]"> {/* Increased min-height */}
+    // perspective container for 3D effect
+    <div className="perspective w-full max-w-xl mx-auto">
+      {/* The actual card element that flips */}
       <Card className={cn(
-        "relative preserve-3d transition-transform duration-700 rounded-xl shadow-xl flex flex-col h-full", // Use h-full
+        "relative preserve-3d transition-transform duration-700 rounded-xl shadow-xl flex flex-col min-h-[300px]", // Added min-height here, removed h-full
         isFlipped ? 'rotate-y-180' : ''
       )}>
-        {/* Front of the Card */}
+        {/* Front Face */}
         <div className="absolute-fill backface-hidden flex flex-col p-6 bg-card rounded-xl">
           <CardHeader className="pb-4 pt-2">
              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
                 <BrainCircuit className="mr-2 h-4 w-4 text-primary"/> Question
              </CardTitle>
           </CardHeader>
+          {/* Make content area grow and center content vertically */}
           <CardContent className="flex-grow flex items-center justify-center">
             <p className="text-xl md:text-2xl font-semibold text-center leading-relaxed">{question}</p>
           </CardContent>
@@ -51,13 +54,14 @@ export function QuestionCard({ question, answer, onNext, isLastCard }: QuestionC
           </CardFooter>
         </div>
 
-        {/* Back of the Card */}
+        {/* Back Face */}
         <div className="absolute-fill backface-hidden rotate-y-180 flex flex-col p-6 bg-secondary rounded-xl">
            <CardHeader className="pb-4 pt-2">
              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
                 <Check className="mr-2 h-4 w-4 text-green-500"/> Answer
              </CardTitle>
           </CardHeader>
+           {/* Make content area grow and center content vertically */}
            <CardContent className="flex-grow flex items-center justify-center">
             <p className="text-lg md:text-xl text-center text-secondary-foreground leading-relaxed">{answer}</p>
           </CardContent>
@@ -74,3 +78,4 @@ export function QuestionCard({ question, answer, onNext, isLastCard }: QuestionC
     </div>
   );
 }
+
