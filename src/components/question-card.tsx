@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, RotateCcw, BrainCircuit, Check, Bookmark, BookmarkCheck } from 'lucide-react'; // Added Bookmark icons
+import { ArrowRight, RotateCcw, BrainCircuit, Check, Bookmark, BookmarkCheck, Trash2 } from 'lucide-react'; // Added Trash2
 import { cn } from '@/lib/utils';
 import { useSavedCards } from '@/context/SavedCardsContext'; // Import context hook
 
@@ -51,21 +51,21 @@ export function QuestionCard({
         addCard({ question, answer });
     } else {
         // Optional: Implement unsave functionality or just show feedback
-        console.log("Card already saved");
-         removeCard(cardId); // Or use removeCard to unsave
+        console.log("Removing saved card");
+         removeCard(cardId); // Use removeCard to unsave
     }
   };
 
   const handleDelete = () => {
     if (onDelete) {
-      onDelete(cardId);
+      onDelete(cardId); // Pass the cardId
     }
   };
 
   return (
     <div className="perspective w-full max-w-xl mx-auto">
       <Card className={cn(
-        "relative preserve-3d transition-transform duration-700 rounded-xl shadow-xl flex flex-col min-h-[300px] ", // Removed justify-between if not needed
+        "relative preserve-3d transition-transform duration-700 rounded-xl shadow-xl flex flex-col min-h-[300px] justify-between", // Added justify-between
         isFlipped ? 'rotate-y-180' : ''
       )}>
         {/* Front Face */}
@@ -78,12 +78,12 @@ export function QuestionCard({
           <CardContent className="flex-grow flex items-center justify-center text-center">
             <p className="text-xl md:text-2xl font-semibold leading-relaxed">{question}</p>
           </CardContent>
-          <CardFooter className="flex justify-center pt-4 gap-2">
+          <CardFooter className={cn("flex justify-center pt-4 gap-2", showSaveButton ? 'justify-between' : 'justify-center')}>
             <Button onClick={handleFlip} variant="outline" className="border-primary text-primary hover:bg-primary/10 hover:text-primary rounded-lg font-medium shadow-sm">
               <RotateCcw className="mr-2 h-4 w-4" /> Show Answer
             </Button>
             {showSaveButton && (
-              <Button onClick={handleSave} variant={saved ? "secondary" : "outline"} className={cn("rounded-lg font-medium shadow-sm", saved ? "" : "border-amber-500 text-amber-600 hover:bg-amber-500/10")}>
+              <Button onClick={handleSave} variant={saved ? "secondary" : "outline"} className={cn("rounded-lg font-medium shadow-sm", saved ? "" : "border-amber-500 text-amber-600 hover:bg-amber-500/10 hover:text-amber-600")}>
                 {saved ? <BookmarkCheck className="mr-2 h-4 w-4" /> : <Bookmark className="mr-2 h-4 w-4" />} {saved ? 'Saved' : 'Save Card'}
               </Button>
             )}
@@ -100,19 +100,19 @@ export function QuestionCard({
            <CardContent className="flex-grow flex items-center justify-center text-center">
             <p className="text-lg md:text-xl text-secondary-foreground leading-relaxed">{answer}</p>
           </CardContent>
-           <CardFooter className={cn("flex pt-4 gap-2", onNext || showDeleteButton ? 'justify-between' : 'justify-center')}>
+           <CardFooter className={cn("flex pt-4 gap-2", (onNext || showDeleteButton) ? 'justify-between' : 'justify-center')}>
              <Button onClick={handleFlip} variant="outline" className="border-primary text-primary hover:bg-primary/10 hover:text-primary rounded-lg font-medium shadow-sm">
                <RotateCcw className="mr-2 h-4 w-4" /> Show Question
              </Button>
+             {showDeleteButton && onDelete && (
+                <Button onClick={handleDelete} variant="destructive" className="rounded-lg font-medium shadow-sm">
+                   <Trash2 className="mr-2 h-4 w-4" /> Delete Card
+                </Button>
+             )}
              {onNext && (
                  <Button onClick={handleNext} className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium shadow-sm">
                      {isLastCard ? 'Finish Session' : 'Next Question'} <ArrowRight className="ml-2 h-4 w-4" />
                  </Button>
-             )}
-             {showDeleteButton && onDelete && (
-                <Button onClick={handleDelete} variant="destructive" className="rounded-lg font-medium shadow-sm">
-                   Delete Card
-                </Button>
              )}
           </CardFooter>
         </div>

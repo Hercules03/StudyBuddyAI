@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useSavedCards } from '@/context/SavedCardsContext';
 import { QuestionCard } from '@/components/question-card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Trash2 } from 'lucide-react'; // Import icons
+import { ArrowLeft, Trash2, ArrowRight } from 'lucide-react'; // Import ArrowRight
 import Link from 'next/link';
 
 export default function SavedCardsPage() {
@@ -79,7 +79,7 @@ export default function SavedCardsPage() {
           answer={savedCards[currentCardIndex].answer}
           showSaveButton={false} // Don't show save button on saved cards page
           showDeleteButton={true} // Show delete button
-          onDelete={handleDeleteCard}
+          onDelete={() => handleDeleteCard(savedCards[currentCardIndex].id)} // Pass the current card's id to delete handler
         />
 
         {/* Navigation Buttons */}
