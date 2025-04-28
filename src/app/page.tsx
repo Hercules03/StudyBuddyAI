@@ -49,7 +49,8 @@ export default function Home() {
           />
         ) : (
           questionCards.length > 0 && (
-            <div className="flex flex-col items-center w-full gap-6">
+            // Increased gap from gap-6 to gap-8 or gap-10 for more space
+            <div className="flex flex-col items-center w-full gap-10">
              <QuestionCard
                 key={currentCardIndex}
                 question={questionCards[currentCardIndex].question}
@@ -69,3 +70,4 @@ export default function Home() {
     </main>
   );
 }
+
