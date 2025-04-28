@@ -28,7 +28,8 @@ export const SavedCardsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const { toast } = useToast();
 
   // Load cards from localStorage on mount (client-side only)
-  useEffect(() => {
+   useEffect(() => {
+    let loadError: Error | null = null;
     if (typeof window !== 'undefined') {
       try {
         const storedCards = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -37,70 +38,85 @@ export const SavedCardsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         }
       } catch (error) {
         console.error("Failed to load saved cards from localStorage:", error);
-        // Optionally show a toast error
-        toast({
-          variant: "destructive",
-          title: "Load Error",
-          description: "Could not load saved cards.",
-        });
+        loadError = error instanceof Error ? error : new Error("Unknown load error");
       } finally {
         setIsLoaded(true); // Mark as loaded regardless of success/failure
+        // Show toast *after* state updates (setIsLoaded)
+        if (loadError) {
+          toast({
+            variant: "destructive",
+            title: "Load Error",
+            description: "Could not load saved cards.",
+          });
+        }
       }
     }
-  }, [toast]); // Added toast dependency
+  }, [toast]); // Keep toast dependency
 
   // Save cards to localStorage whenever they change (client-side only)
-  useEffect(() => {
-    // Only save after initial load to prevent overwriting with empty array
+   useEffect(() => {
+    let saveError: Error | null = null;
     if (typeof window !== 'undefined' && isLoaded) {
        try {
           localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(savedCards));
        } catch (error) {
          console.error("Failed to save cards to localStorage:", error);
-         // Optionally show a toast error
-         toast({
-           variant: "destructive",
-           title: "Save Error",
-           description: "Could not save cards.",
-         });
+         saveError = error instanceof Error ? error : new Error("Unknown save error");
+       } finally {
+         // Show toast *after* potential state updates related to savedCards
+         if (saveError) {
+             toast({
+               variant: "destructive",
+               title: "Save Error",
+               description: "Could not save cards.",
+             });
+         }
        }
     }
-  }, [savedCards, isLoaded, toast]); // Added isLoaded and toast dependency
+  }, [savedCards, isLoaded, toast]); // Keep dependencies
 
   const addCard = useCallback((card: Omit<SavedCard, 'id'>) => {
-    // Use question as ID, simple approach. Consider UUIDs for more robustness.
-    const newCard: SavedCard = { ...card, id: card.question };
-    setSavedCards((prevCards) => {
-      // Prevent duplicates
-      if (prevCards.some(c => c.id === newCard.id)) {
-        toast({
-            title: "Already Saved",
-            description: "This card is already in your saved list.",
-        });
-        return prevCards;
-      }
-       toast({
-            title: "Card Saved!",
-            description: "The flashcard has been added to your saved list.",
-            variant: "default"
-       });
-      return [...prevCards, newCard];
-    });
-  }, [toast]); // Added toast dependency
+    const newCardId = card.question; // Determine ID
+
+    // Check if card exists *before* calling setState
+    if (savedCards.some(c => c.id === newCardId)) {
+      toast({
+          title: "Already Saved",
+          description: "This card is already in your saved list.",
+      });
+      return; // Exit early
+    }
+
+    // Update state
+    const newCard: SavedCard = { ...card, id: newCardId };
+    setSavedCards((prevCards) => [...prevCards, newCard]);
+
+    // Show toast *after* state update is initiated
+    toast({
+          title: "Card Saved!",
+          description: "The flashcard has been added to your saved list.",
+          variant: "default"
+     });
+  }, [savedCards, toast]); // Added savedCards to dependency array
 
   const removeCard = useCallback((id: string) => {
+    let cardRemoved = false;
     setSavedCards((prevCards) => {
+        const originalLength = prevCards.length;
         const updatedCards = prevCards.filter((card) => card.id !== id);
-        if (updatedCards.length < prevCards.length) {
-            toast({
-                title: "Card Removed",
-                description: "The flashcard has been removed from your saved list.",
-                variant: "default" // Or use a different variant like 'destructive' if preferred
-            });
-        }
+        cardRemoved = updatedCards.length < originalLength; // Check if removal happened
         return updatedCards;
     });
-  }, [toast]); // Added toast dependency
+
+    // Show toast *after* state update is initiated
+    if (cardRemoved) {
+        toast({
+            title: "Card Removed",
+            description: "The flashcard has been removed from your saved list.",
+            variant: "default" // Or use a different variant like 'destructive' if preferred
+        });
+    }
+  }, [toast]); // No dependency on savedCards needed here
 
   const isCardSaved = useCallback((id: string) => {
     return savedCards.some(card => card.id === id);
